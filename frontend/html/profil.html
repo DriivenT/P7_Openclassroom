@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Groupomania - Réseau Social</title>
+    <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="../style/bootstrap.css">
+    <script src="https://kit.fontawesome.com/46f1bc7e24.js" crossorigin="anonymous"></script>
+    <!-- Vue + Axios -->
+    <script src="https://unpkg.com/vue@next"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body class="bg-tertiary w-100">
+    <div id="app">
+
+        <!-- Modal "Nouvelle email validée" -->
+        <div class="modal fade" id="successUpdateModal" tabindex="-1" role="dialog" aria-labelledby="successUpdateModal"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="mt-5 modal-dialog text-success text-center border border-success rounded bg-success-light successModalShadow"
+                    role="document">
+                    <p class="modal-text p-4"><i class="fas fa-check-circle mr-2"></i>Adresse email modifiée avec succès !</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal "Echec du changement d'email" -->
+        <div class="modal fade" id="failUpdateModal" tabindex="-1" role="dialog" aria-labelledby="failUpdateModal"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="mt-5 modal-dialog text-danger text-center border border-danger rounded bg-danger-light failModalShadow"
+                    role="document">
+                    <p class="modal-text p-4"><i class="fas fa-times-circle mr-2"></i>L'adresse email n'a pas pu être modifiée. Veuillez réessayer avec une adresse valide.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal "Suppression de compte" -->
+        <div class="modal fade" id="deleteAccountModal" tabindex="-1" role="dialog" aria-labelledby="deleteAccountModal"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="mt-5 modal-dialog text-danger text-center border border-danger rounded bg-danger-light failModalShadow"
+                    role="document">
+                    <h2 class="display-4 modal-text p-4 font-weight-bold"><i class="fas fa-exclamation-triangle mr-2"></i> Attention <i class="fas fa-exclamation-triangle ml-2"></i></h2>
+                    <p class="modal-text">Cette action sera irréversible.<br>
+                        Fermer ce modal provoquera la suppression du compte.<br>
+                        Pour annuler cette action, veuillez utiliser le bouton du navigateur "retour arrière".</p>
+                </div>
+            </div>
+        </div>
+
+        <header class="navbar navbar-expand-lg navbar-light bg-primary">
+            <a class="navbar-brand" href="../index.html">
+                <img src="../images/icon-left-font-monochrome-white.png" alt="Logo du site" loading="lazy">
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+    
+            <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
+                        <a class="nav-link text-white mr-4 ml-sm-3" href="premierePage.html"><i
+                                class="fas fa-home mr-sm-2"></i> Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white mr-4 ml-sm-3" href="#"><i class="far fa-address-card mr-sm-2"></i>
+                            Profil<span class="sr-only">(actuel)</span></a>
+                    </li>
+                    <li class="nav-item ml-sm-3">
+                        <a class="nav-link text-white" href="#"><i class="fas fa-power-off mr-sm-2"></i> Déconnexion</a>
+                    </li>
+                </ul>
+            </div>
+        </header>
+    
+        <h1 class="display-3 h1 mt-3 text-center text-primary-dark font-weight-bold"><u>Votre profil:</u></h1>
+        <div class="mx-5 d-flex mt-4" id="app">
+            <!-- Block Information (Gauche) -->
+            <div class="mx-3 my-3 box-shadow w-100 d-flex flex-column">
+                <h2 class="h2 font-weight-bold mt-2 mb-4 text-primary-dark text-center"><u>Vos informations:</u></h2>
+
+                <table class="table table-borderless text-sizing w-50 mx-auto pl-5">
+                    <tr>
+                        <th><u>Nom:</u></th>
+                        <td>{{ nom }}</td>
+                    </tr>
+                    <tr>
+                        <th><u>Prénom:</u></th>
+                        <td>{{ prenom }}</td>
+                    </tr>
+                    <tr>
+                        <th><u>Email:</u></th>
+                        <td>{{ email }}</td>
+                    </tr>
+                </table>
+            </div>
+    
+            <!-- Block Modification (Droite) -->
+            <div class="mx-3 my-3 text-center box-shadow w-100">
+                <h2 class="h2 font-weight-bold mt-2 mb-4 text-primary-dark"><u>Modification:</u></h2>
+                <form class="mx-5 d-flex border-bottom border-primary">
+                    <div class="form-group w-100">
+                        <input type="email" class="form-control border-primary" id="inputNewEmail"
+                            placeholder="Entrer votre nouvelle adresse email:" v-model="newEmail">
+                    </div>
+    
+                    <button type="button" class="btn btn-primary mb-3 ml-2" v-on:click="updateEmail">Enregistrer</button>
+                </form>
+    
+                <div class="mx-5 my-3 text-center text-danger-dark box-shadow">
+                    <h3 class="display-4 pt-2 font-weight-bold"><i class="fas fa-exclamation-triangle mr-2"></i> <u>ATTENTION</u> <i class="fas fa-exclamation-triangle ml-2"></i></h3>
+                    <p class="text-center text-sizing">Cliquer sur ce bouton supprimera TOUT.<br> Votre compte, vos posts
+                        ainsi que vos commentaires. Aucune récupération sera envisageable !</p>
+                    <button type="button" class="btn btn-primary mb-3" v-on:click="deleteAccount">Supprimer le compte</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- VUE JS -->
+    <script>
+        const vue = Vue.createApp({
+            data() {
+                return {
+                    nom: '',
+                    prenom: '',
+                    email: '',
+                    newEmail: ''
+                }
+            },
+
+            methods: {
+                updateEmail(){
+                    axios.put('http://localhost:3000/api/users/' + localStorage.getItem('id'), {
+                        email: this.newEmail
+                    },
+                    {
+                        headers: {
+                            'Authorization': localStorage.getItem('token')
+                        }
+                    })
+                    .then(response => {
+                        jQuery('#successUpdateModal').modal();
+                        jQuery('#successUpdateModal').on('hide.bs.modal', function (e) {
+                            document.location.reload();
+                        })
+                    })
+                    .catch(response => {
+                        jQuery('#failUpdateModal').modal();
+                    })
+                },
+                
+                deleteAccount(){
+                    jQuery('#deleteAccountModal').modal();
+                    jQuery('#deleteAccountModal').on('hidden.bs.modal', function (e) {
+                        axios.delete('http://localhost:3000/api/users', {
+                            headers: {
+                                'Authorization': localStorage.getItem('token')
+                            }
+                        })
+                        .then(response => { 
+                            console.log(response);
+                            window.location.replace("../index.html");
+                        })
+                        .catch(response => { console.log(response) })
+                    })
+                },
+                
+                exitModal(){
+                    
+                }
+            },
+
+            mounted(){
+                axios.get('http://localhost:3000/api/users', {
+                    headers: {
+                        'Authorization': localStorage.getItem('token')
+                    }
+                })
+                .then(response => {
+                    this.nom = response.data.nom;
+                    this.prenom = response.data.prenom;
+                    this.email = response.data.email;
+                })
+                .catch(response => {
+                    console.log(response);
+                })
+            }
+        }).mount("#app")
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    <script src="../script/bootstrap.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Groupomania - Accueil </title>
+    <link rel="stylesheet" href="style/style.css">
+    <link rel="stylesheet" href="style/bootstrap.css">
+    <!-- Vue + Axios -->
+    <script src="https://unpkg.com/vue@next"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://kit.fontawesome.com/46f1bc7e24.js" crossorigin="anonymous"></script>
+</head>
+
+<body class="bg-tertiary w-100">
+    
+    <!-- Modal "Inscription acceptée" -->
+    <div class="modal fade" id="successRegisterModal" tabindex="-1" role="dialog" aria-labelledby="successRegisterModal"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="mt-5 modal-dialog text-success text-center border border-success rounded bg-success-light successModalShadow" role="document">
+                <p class="modal-text p-4"><i class="fas fa-check-circle mr-2"></i>Votre inscription est validée !<br>
+                Vous pouvez désormais vous connecter.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal "Echec de l'inscription" -->
+    <div class="modal fade" id="failRegisterModal" tabindex="-1" role="dialog" aria-labelledby="FailRegisterModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="mt-5 modal-dialog text-danger text-center border border-danger rounded bg-danger-light failModalShadow" role="document">
+                <p class="modal-text p-4"><i class="fas fa-times-circle mr-2"></i>Votre inscription à échouée !<br>
+                Veuillez réessayer.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal "Connexion refusée" -->
+    <div class="modal fade" id="failLoginModal" tabindex="-1" role="dialog" aria-labelledby="FailLoginModal"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="mt-5 modal-dialog text-danger text-center border border-danger rounded bg-danger-light failModalShadow"
+                role="document">
+                <p class="modal-text p-4"><i class="fas fa-times-circle mr-2"></i>Votre tentative de connexion à échouée !<br>
+                    Vos informations sont erronées.</p>
+            </div>
+        </div>
+    </div>
+
+    <header class="navbar navbar-expand-lg navbar-light bg-primary">
+        <a class="navbar-brand" href="index.html"><img src="images/icon-left-font-monochrome-white.png" alt="Logo du site Groupomania"></a>
+    </header>
+
+    <h1 class="h1 w-50 mx-auto pt-5 text-center text-primary-dark font-weight-bold text-shadow">Bienvenue sur le réseau social:<br>
+        Groupomania</h1>
+
+    <div class="mx-5 d-flex mt-4" id="app">
+        <!-- Block Inscription (Gauche) -->
+        <div class="mx-3 my-3 text-center box-shadow w-100 hoverOpacity">
+            <h2 class="h2 font-weight-bold mt-2 mb-4 text-primary-dark"><u>Inscription:</u></h2>
+            <form class="mx-5">
+                <div class="form-group">
+                    <input type="text" class="form-control border-primary" id="inputNom" v-model="nom" placeholder="Entrer votre nom:">
+                </div>  
+
+                <div class="form-group">
+                    <input type="text" class="form-control border-primary" id="inputPrenom" v-model="prenom" placeholder="Entrer votre prénom:">
+                </div>
+
+                <div class="form-group">
+                    <input type="email" class="form-control border-primary" id="inputEmail" v-model="email" placeholder="Entrer une adresse email:">
+                </div>
+
+                <div class="form-group">
+                    <input type="password" class="form-control border-primary" id="inputPassword" v-model="password" placeholder="Entrer un mot de passe:">
+                </div>
+
+                <button type="button" v-on:click="Register" class="btn btn-primary mb-3" data-toggle="modal">S'inscrire</button>
+            </form>
+        </div>
+
+        <!-- Block Connexion (Droite) -->
+        <div class="mx-3 my-3 text-center box-shadow w-100 hoverOpacity">
+            <h2 class="h2 font-weight-bold mt-2 mb-4 text-primary-dark"><u>Connexion:</u></h2>
+            <form class="mx-5">
+                <div class="form-group">
+                    <input type="email" class="form-control border-primary" id="inputEmailConnexion" v-model="emailLogin" placeholder="Entrer une adresse email:">
+                </div>
+                
+                <div class="form-group">
+                    <input type="password" class="form-control border-primary" id="inputPasswordConnexion" v-model="passwordLogin" placeholder="Entrer un mot de passe:">
+                </div>
+
+                <button type="button" v-on:click="logIn" class="btn btn-primary mb-3">Connexion</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="navbar navbar-expand-lg navbar-light bg-primary text-center footer">
+        <p class="small mx-auto my-0">Un problème ? <u><a href="mailto:monadresse@gmail.com">Contactez-nous</a></u><br>
+        Copyright</p>
+    </footer>
+
+    <!-- VUE JS -->
+    <script>
+        const vue = Vue.createApp({
+            data() {
+                return {
+                    nom: '',
+                    prenom: '',
+                    email: '',
+                    password: '',
+                    emailLogin: '',
+                    passwordLogin:'',
+                }
+            },
+            methods: {
+                Register(event){
+                    const dataRegister = {
+                        nom: this.nom,
+                        prenom: this.prenom,
+                        email: this.email,
+                        password: this.password
+                    }
+                    axios.post('http://localhost:3000/api/users', dataRegister)
+                    .then(response => {
+                        jQuery('#successRegisterModal').modal();
+                        jQuery('#successRegisterModal').on('hide.bs.modal', function (e) {
+                            document.location.reload();
+                        })
+                    })
+                    .catch(response => { 
+                        jQuery('#failRegisterModal').modal();
+                    })
+                },
+                async logIn(){
+                    const dataLogIn = {
+                        email: this.emailLogin,
+                        password: this.passwordLogin
+                    }
+
+                    axios.post('http://localhost:3000/api/users/connexion', dataLogIn)
+                    .then(response => {
+                        localStorage.clear();
+                        localStorage.setItem('token', `Bearer ${response.data.token}`);
+                        localStorage.setItem('userId', response.data.userId);
+                        window.location.replace("html/premierePage.html");
+                    })
+                    .catch(response => {
+                        jQuery('#failLoginModal').modal();
+                    })
+                }
+            }
+        }).mount('#app')
+    </script>
+    <!-- FIN DE VUE -->
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="script/bootstrap.js"></script>
+</body>
+
+</html>
