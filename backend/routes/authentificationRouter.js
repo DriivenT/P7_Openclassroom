@@ -8,6 +8,7 @@ const autorisation = require('../middlewares/autorisation');
 router.post('', controleUtilisateur.inscription);
 router.post('/connexion', /*limiteConnexion,*/ controleUtilisateur.connexion);
 router.put('/:id', controleUtilisateur.modifierEmail);
+router.get('/:id', autorisation, controleUtilisateur.trouverUnUtilisateur);
 router.get('', autorisation, controleUtilisateur.profilUtilisateur);
 router.delete('', autorisation, controleUtilisateur.supprimerUtilisateur);
 

@@ -3,21 +3,20 @@ const models = require('../models');
 const post = require('../models/post');
 const getUserId = require('../utils/getUserIdUtils');
 
-regexContenu = /^([1-zA-Z0-1@.\s]{1,255})$/;
-
 // Controllers
 exports.trouverTousPosts = (request, response, next) => {
 
     models.Post.findAll({
+        order: [['createdAt', 'DESC']]
     })
-        .then(posts => {
-            if (posts) {
-                response.status(200).json(posts);
-            } else {
-                response.status(404).json({ error: "Pas de message trouvé." });
-            }
-        })
-        .catch(() => response.status(500).json({ error: "Champ invalide."}));
+    .then(posts => {
+        if (posts) {
+            response.status(200).json(posts);
+        } else {
+            response.status(404).json({ error: "Pas de message trouvé." });
+        }
+    })
+    .catch(() => response.status(500).json({ error: "Aucune message trouvé."}));
 }
 
 exports.creerPost = (request, response, next) => {
@@ -29,28 +28,25 @@ exports.creerPost = (request, response, next) => {
     if(contenu === null){
         return response.status(400).json({ error: 'Erreur, votre post est vide.' });
     }
-    else if (contenu.length < 5 || contenu.length > 255){
-        return response.status(400).json({ error: 'Erreur, votre post doit contenir entre 5 et 255 caractères.' });
+    else if (contenu.length <= 1 || contenu.length > 255){
+        return response.status(400).json({ error: 'Erreur, votre post doit contenir entre 1 et 255 caractères.' });
     }
 
     models.Utilisateur.findOne({
         where: { id: userId }
     })
     .then(utilisateurTrouve => {
-        if(utilisateurTrouve){
-            if (regexContenu.test(contenu)) {
-                models.Post.create({
-                    contenu: contenu,
-                    idUtilisateurs: utilisateurTrouve.id
-                })
-                    .then(nouveauPost => {
-                        return response.status(201).json({ nouveauPost });
-                    })
-                    .catch(err => response.status(400).json({ error: 'Erreur, le post n\'a pas pu être créé: ' + err }));
-            }
-            else {
-                return response.status(400).json({ error: 'Erreur, votre post contient des caractères interdits.' });
-            }
+        if (utilisateurTrouve) {
+            models.Post.create({
+                idUtilisateurs: utilisateurTrouve.id,
+                nom: utilisateurTrouve.nom,
+                prenom: utilisateurTrouve.prenom,
+                contenu: contenu,
+            })
+            .then(nouveauPost => {
+                 return response.status(201).json({ nouveauPost });
+            })
+            .catch(err => response.status(400).json({ error: 'Erreur, le post n\'a pas pu être créé: ' + err }));
         }
         else{
             return response.status(400).json({ error: 'Utilisateur inconnu.' })
@@ -59,7 +55,7 @@ exports.creerPost = (request, response, next) => {
     .catch(() => response.status(404).json({ error: 'Utilisateur introuvable.' }));
 }
 
-exports.modifierPost = async (request, response, next) => {
+/* exports.modifierPost = async (request, response, next) => {
 
     let headerAutorisation = request.headers.authorization;
     let userId = getUserId(headerAutorisation);
@@ -101,7 +97,6 @@ exports.modifierPost = async (request, response, next) => {
             { where: {id: postId}
         })
         .then(updatedContenu => {
-            console.log(updatedContenu);
             response.status(202).json(updatedContenu);
         })
         .catch(() => response.status(400).json({ error: 'Le contenu n\'a pas pu être mis à jour. ' }))
@@ -109,7 +104,7 @@ exports.modifierPost = async (request, response, next) => {
     else{
         return response.status(401).json({ error: 'Ce post ne vous appartient pas, vous n\'êtes pas autorisé à le modifier.' })
     }
-}
+} */    
 
 exports.supprimerPost = async (request, response, next) => {
 

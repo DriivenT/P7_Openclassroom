@@ -18,6 +18,8 @@ module.exports = (sequelize, DataTypes) => {
   Commentaire.init({
     idUtilisateurs: DataTypes.INTEGER,
     idPosts: DataTypes.INTEGER,
+    nom: DataTypes.STRING,
+    prenom: DataTypes.STRING,
     contenu: DataTypes.STRING,
     likes: DataTypes.INTEGER,
     usersLiked: DataTypes.TEXT

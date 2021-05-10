@@ -41,28 +41,25 @@ exports.creerCommentaire = (request, response, next) => {
     models.Utilisateur.findOne({
         where: { id: userId }
     })
-        .then(utilisateurTrouve => {
-            if (utilisateurTrouve) {
-                if (regexContenu.test(contenu)) {
-                    models.Commentaire.create({
-                        contenu: contenu,
-                        idUtilisateurs: utilisateurTrouve.id,
-                        idPosts: postId
-                    })
-                        .then(nouveauCommentaire => {
-                            return response.status(201).json({ nouveauCommentaire });
-                        })
-                        .catch((err) => response.status(400).json({ error: 'Erreur, le commentaire n\'a pas pu être créé ' + err }));
-                }
-                else {
-                    return response.status(400).json({ error: 'Erreur, votre commentaire contient des caractères interdits.' });
-                }
-            }
-            else {
-                return response.status(400).json({ error: 'Utilisateur inconnu.' })
-            }
-        })
-        .catch(() => response.status(404).json({ error: 'Utilisateur introuvable.' }));
+    .then(utilisateurTrouve => {
+        if (utilisateurTrouve) {
+            models.Commentaire.create({
+                nom: utilisateurTrouve.nom,
+                prenom: utilisateurTrouve.prenom,
+                contenu: contenu,
+                idUtilisateurs: utilisateurTrouve.id,
+                idPosts: postId
+            })
+                .then(nouveauCommentaire => {
+                    return response.status(201).json({ nouveauCommentaire });
+                })
+                .catch((err) => response.status(400).json({ error: 'Erreur, le commentaire n\'a pas pu être créé ' + err }));
+        }
+        else {
+            return response.status(400).json({ error: 'Utilisateur inconnu.' })
+        }
+    })
+    .catch(() => response.status(404).json({ error: 'Utilisateur introuvable.' }));
 }
 
 exports.modifierCommentaire = async (request, response, next) => {

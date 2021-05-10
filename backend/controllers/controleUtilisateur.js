@@ -137,6 +137,17 @@ exports.modifierEmail = async (request, response, next) => {
     .catch((err) => response.status(404).json({ error: "Utilisateur introuvable." + err}))
 }
 
+exports.trouverUnUtilisateur = (request, response, next) => {
+    let userId = request.url.split('/')[1];
+
+    models.Utilisateur.findOne({
+        attributes: ['id', 'nom', 'prenom'],
+        where: { id: userId }
+    })
+    .then(utilisateurTrouve => response.status(202).json(utilisateurTrouve))
+    .catch(() => response.status(500).json({ error: 'Impossible de trouver l\'utilisateur.' }));
+}
+
 exports.profilUtilisateur = (request, response, next) => {
 
     let headerAutorisation = request.headers.authorization;
