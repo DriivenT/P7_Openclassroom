@@ -6,6 +6,7 @@
     <title>Groupomania - Réseau Social</title>
     <link rel="stylesheet" href="../style/style.css">
     <link rel="stylesheet" href="../style/bootstrap.css">
+    <link rel="stylesheet" media="screen and (max-width: 767px)" href="../style/style.css" type="text/css" />
     <script src="https://kit.fontawesome.com/46f1bc7e24.js" crossorigin="anonymous"></script>
     <!-- Vue + Axios -->
     <script src="https://unpkg.com/vue@next"></script>
@@ -16,15 +17,14 @@
         crossorigin="anonymous"></script>
 </head>
 
-<body class="bg-tertiary w-100">
-    <div id="app">
+    <div class="bg-tertiary w-100" id="app">
         <header class="navbar navbar-expand-lg navbar-light bg-primary">
             <a class="navbar-brand" href="../index.html">
                 <img src="../images/icon-left-font-monochrome-white.png" alt="Logo du site" loading="lazy">
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+                <i class="fas fa-bars text-white nav-item"></i>
             </button>
     
             <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
@@ -34,31 +34,35 @@
                                 class="fas fa-home mr-sm-2"></i> Accueil<span class="sr-only">(actuel)</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white mr-4 ml-sm-3" href="profil.html"><i class="far fa-address-card mr-sm-2"></i>
+                        <a class="nav-link text-white mr-4 ml-sm-3" href="profil.html"><i
+                                class="far fa-address-card mr-sm-2"></i>
                             Profil</a>
                     </li>
                     <li class="nav-item ml-sm-3">
-                        <a class="nav-link text-white" href="#"><i class="fas fa-power-off mr-sm-2"></i> Déconnexion</a>
+                        <a class="nav-link text-white" href="../index.html" v-on:click="logOut"><i class="fas fa-power-off mr-sm-2"></i> Déconnexion</a>
                     </li>
                 </ul>
             </div>
         </header>
     
+        <div class="querieSize">
         <!-- Bloc "ajout de post" -->
-        <div class="w-75 mt-4 mx-auto d-flex flex-column align-items-center border-bottom border-primary">
-            <textarea class="border-primary mt-3 mb-2 w-50 rounded px-2" id="inputPost"
-                placeholder="Ecrivez votre message ici ..." v-model='contenuPost'></textarea>
-            <button type="button" class="btn btn-primary btn ml-2 mb-4" v-on:click="addPost">Poster</button>
-        </div>
+            <div class="w-75 mt-4 mx-auto d-flex flex-column align-items-center border-bottom border-primary">
+                <textarea class="border-primary mt-3 mb-2 rounded px-2 w-50" id="inputPost"
+                    placeholder="Ecrivez votre message ici ..." v-model='contenuPost'></textarea>
+                <button type="button" class="btn btn-primary btn ml-2 mb-4" v-on:click="addPost">Poster</button>
+            </div>
     
-        <!-- Bloc single page avec tout les posts -->
-        <div class="d-flex flex-column w-50 mx-auto mt-2">
-            <post v-for="post in this.posts" :contenu="post.contenu" :nom="post.nom" :prenom="post.prenom" :likes="post.likes" :date="post.createdAt" :id="post.id"></post>
+            <!-- Bloc single page avec tout les posts -->
+            <div class="d-flex flex-column mx-auto mt-2 w-50">
+                <post v-for="post in this.posts" :contenu="post.contenu" :nom="post.nom" :prenom="post.prenom"
+                    :likes="post.likes" :date="post.createdAt" :id="post.id"></post>
+            </div>
+            <!-- Fin du bloc single page -->
         </div>
-        <!-- Fin du bloc single page -->
     </div>
-
-
+    
+    
     <!-- VUE JS -->
     <script>
         const app = Vue.createApp({
@@ -69,7 +73,7 @@
                 }
             },
             methods: {
-                addPost(){
+                addPost() {
                     const newPost = {
                         idUtilisateurs: localStorage.getItem('userId'),
                         contenu: this.contenuPost
@@ -80,14 +84,18 @@
                             'Authorization': localStorage.getItem('token')
                         }
                     })
-                    .then(response => {
-                        this.posts.push(response.data.nouveauPost);
-                        console.log(this.posts);
-                    })
-                    .catch(response => {
-                        console.log(response);
-                    })
+                        .then(response => {
+                            this.posts.push(response.data.nouveauPost);
+                            console.log(this.posts);
+                        })
+                        .catch(response => {
+                            console.log(response);
+                        })
                 },
+
+                logOut(){
+                    localStorage.clear();
+                }
             },
 
             mounted() {
@@ -96,134 +104,131 @@
                         'Authorization': localStorage.getItem('token')
                     }
                 })
-                .then(response => {
-                    this.posts = response.data;
-                })
-                .catch(response => {
-                    console.log(response)
-                })
+                    .then(response => {
+                        this.posts = response.data;
+                    })
+                    .catch(response => {
+                        console.log(response)
+                    })
             },
-
-            
         })
 
         app.component('post', {
-                data(){
-                    return{
-                        commentaires: '',
-                        contenuCommentaire: [],
+            data() {
+                return {
+                    commentaires: [],
+                    contenuCommentaire: '',
+                }
+            },
+
+            props: ['contenu', 'nom', 'prenom', 'likes', 'date', 'id'],
+
+            computed: {
+                formatedDate() {
+                    return moment(this.date).format('MM/DD/YYYY' + " à " + 'hh:mm a');
+                },
+            },
+
+            methods: {
+                addCommentaire() {
+
+                    const newCommentaire = {
+                        idUtilisateurs: localStorage.getItem('userId'),
+                        contenu: this.contenuCommentaire,
                     }
-                },
 
-                props: ['contenu', 'nom', 'prenom', 'likes', 'date', 'id'],
-
-                computed: {
-                    formatedDate() {
-                        return moment(this.date).format('MM/DD/YYYY' + " à " + 'hh:mm a');
-                    },
-                },
-
-                methods: {
-                    addCommentaire() {
-
-                        const newCommentaire = {
-                            idUtilisateurs: localStorage.getItem('userId'),
-                            contenu: this.contenuCommentaire,
-                        }
-                        
-                        axios.post('http://localhost:3000/api/post/' + this.id + '/commentaires', newCommentaire, {
-                            headers: {
-                                'Authorization': localStorage.getItem('token')
-                            }
-                        })
-                        .then(response => {
-                            document.location.reload();
-                        })
-                        .catch(response => {
-                            console.log(response);
-                        })
-                    },
-
-                    addLike(){
-                        axios.post('http://localhost:3000/api/posts/' + this.id + '/like', null, {
-                            headers: {
-                                'Authorization': localStorage.getItem('token')
-                            }
-                        })
-                        .then(response => {
-                            console.log(response);
-                        })
-                        .catch(response => {
-                            console.log(response);
-                        })
-                    },
-
-                    deletePost(){
-                        axios.delete('http://localhost:3000/api/posts/' + this.id, {
-                            headers: {
-                                'Authorization': localStorage.getItem('token')
-                            }
-                        })
-                        .then(response => {
-                            console.log(response);
-                            document.location.reload();
-                        })
-                        .catch(response => {
-                            console.log(response);
-                        })
-                    },
-                },
-
-                template: `
-                <!-- Bloc d'un seul post -->
-                <div>
-                    <!-- Un post -->
-                    <div class="card mt-4">
-                        <div class="bg-primary-light d-flex">
-                            <h3 class="card-header h4 bg-primary-light font-weight-bold pl-2 w-100"><i class="fas fa-user-circle mr-2"></i>{{ nom }} {{ prenom }}</h3>
-                            <div class="btn-group dropleft">
-                                <button type="button" class="btn btn-primary-light" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v bg-primary-light mr-2 mt-2"></i>
-                                </button>
-                                <div class="dropdown-menu bg-primary">
-                                    <button class="dropdown-item" type="button" disabled>Modifier</button>
-                                    <button class="dropdown-item" type="button" v-on:click="deletePost">Supprimer</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body bg-primary">
-                            <p class="card-text">{{ contenu }}</p>
-                        </div>
-                        <div class="card-footer bg-primary d-flex">
-                            <div class="mr-auto">
-                                <button class="btn btn-outline-primary py-1 px-2" v-on:click="addLike"><p class="avis text-success mb-1"><i class="fas fa-thumbs-up mr-2"></i> {{ likes }}</p></button>
-                            </div>
-                            <div>
-                                <p class="mb-0 small">Ajouté le: {{ formatedDate }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Fin du post-->
-
-                    <!-- Input d'ajout d'un com's -->
-                    <form class="d-flex mt-1 mb-1">
-                        <div class="form-group w-100 mb-0">
-                            <textarea type="text" class="form-control border-primary" id="inputCom" placeholder="Ecrivez votre commentaire ici: " v-model="contenuCommentaire"></textarea>
-                        </div>
-                        <button type="button" class="btn btn-primary ml-1" v-on:click="addCommentaire">Envoyer</button>
-                    </form>
-                    <!-- Fin de l'input -->
-
-                    <commentaire v-for="com in commentaires" :nom="com.nom" :prenom="com.prenom" :contenu="com.contenu" :likes="com.likes" :date="com.createdAt" :id="com.id"></commentaire>
-                </div>
-                <!-- Fin d'un seul post -->`,
-
-                created() {
-                    axios.get('http://localhost:3000/api/post/' + this.id + '/commentaires', {
+                    axios.post('http://localhost:3000/api/post/' + this.id + '/commentaires', newCommentaire, {
                         headers: {
                             'Authorization': localStorage.getItem('token')
                         }
                     })
+                        .then(response => {
+                            this.commentaires.push(response.data.nouveauCommentaire);
+                        })
+                        .catch(response => {
+                            console.log(response);
+                        })
+                },
+
+                addLike() {
+                    axios.post('http://localhost:3000/api/posts/' + this.id + '/like', null, {
+                        headers: {
+                            'Authorization': localStorage.getItem('token')
+                        }
+                    })
+                        .then(response => {
+                            document.location.reload();
+                        })
+                        .catch(response => {
+                            console.log(response);
+                        })
+                },
+
+                deletePost() {
+                    axios.delete('http://localhost:3000/api/posts/' + this.id, {
+                        headers: {
+                            'Authorization': localStorage.getItem('token')
+                        }
+                    })
+                        .then(response => {
+                            document.location.reload();
+                        })
+                        .catch(response => {
+                            console.log(response);
+                        })
+                },
+            },
+
+            template: `
+                    <!-- Bloc d'un seul post -->
+                    <div>
+                        <!-- Un post -->
+                        <div class="card mt-4">
+                            <div class="bg-primary-light d-flex">
+                                <h3 class="card-header h4 bg-primary-light font-weight-bold pl-2 w-100"><i class="fas fa-user-circle mr-2"></i>{{ nom }} {{ prenom }}</h3>
+                                <div class="btn-group dropleft">
+                                    <button type="button" class="btn btn-primary-light" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v bg-primary-light mr-2 mt-2"></i>
+                                    </button>
+                                    <div class="dropdown-menu bg-primary">
+                                        <button class="dropdown-item" type="button" disabled>Modifier</button>
+                                        <button class="dropdown-item" type="button" v-on:click="deletePost">Supprimer</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body bg-primary">
+                                <p class="card-text">{{ contenu }}</p>
+                            </div>
+                            <div class="card-footer bg-primary d-flex">
+                                <div class="mr-auto">
+                                    <button class="btn btn-outline-primary py-1 px-2" v-on:click="addLike"><p class="avis text-success mb-1"><i class="fas fa-thumbs-up mr-2"></i> {{ likes }}</p></button>
+                                </div>
+                                <div>
+                                    <p class="mb-0 small">Ajouté le: {{ formatedDate }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Fin du post-->
+    
+                        <!-- Input d'ajout d'un com's -->
+                        <form class="d-flex mt-1 mb-1">
+                            <div class="form-group w-100 mb-0">
+                                <textarea type="text" class="form-control border-primary" id="inputCom" placeholder="Ecrivez votre commentaire ici: " v-model="contenuCommentaire"></textarea>
+                            </div>
+                            <button type="button" class="btn btn-primary ml-1" v-on:click="addCommentaire">Envoyer</button>
+                        </form>
+                        <!-- Fin de l'input -->
+    
+                        <commentaire v-for="com in commentaires" :nom="com.nom" :prenom="com.prenom" :contenu="com.contenu" :likes="com.likes" :date="com.createdAt" :id="com.id"></commentaire>
+                    </div>
+                    <!-- Fin d'un seul post -->`,
+
+            created() {
+                axios.get('http://localhost:3000/api/post/' + this.id + '/commentaires', {
+                    headers: {
+                        'Authorization': localStorage.getItem('token')
+                    }
+                })
                     .then(response => {
                         if (response.data != "") {
                             this.commentaires = response.data;
@@ -232,81 +237,82 @@
                     .catch(response => {
                         console.log(response);
                     })
+            },
+        }).mount('#app')
+
+        app.component('commentaire', {
+
+            props: ['nom', 'prenom', 'contenu', 'likes', 'date', 'id'],
+
+            computed: {
+                formatedDate() {
+                    return moment(this.date).format('MM/DD/YYYY' + " à " + 'hh:mm a');
                 },
-            }).mount('#app')
+            },
 
-            app.component('commentaire', {
-                props: ['nom', 'prenom', 'contenu', 'likes', 'date', 'id'],
-
-                computed: {
-                    formatedDate() {
-                        return moment(this.date).format('MM/DD/YYYY' + " à " + 'hh:mm a');
-                    },
-                },
-
-                methods: {
-                    addLike() {
-                        axios.post('http://localhost:3000/api/commentaires/' + this.id + '/like', null, {
-                            headers: {
-                                'Authorization': localStorage.getItem('token')
-                            }
+            methods: {
+                addLike() {
+                    axios.post('http://localhost:3000/api/commentaires/' + this.id + '/like', null, {
+                        headers: {
+                            'Authorization': localStorage.getItem('token')
+                        }
+                    })
+                        .then(response => {
+                            document.location.reload();
                         })
-                            .then(response => {
-                                console.log(response);
-                            })
-                            .catch(response => {
-                                console.log(response);
-                            })
-                    },
-                    
-                    deleteCommentaire(){
-                        axios.delete('http://localhost:3000/api/commentaires/' + this.id, {
-                            headers: {
-                                'Authorization': localStorage.getItem('token')
-                            }
+                        .catch(response => {
+                            console.log(response);
                         })
-                            .then(response => {
-                                console.log(response);
-                                document.location.reload();
-                            })
-                            .catch(response => {
-                                console.log(response);
-                            })
-                    },
                 },
 
-                template:`<!-- Espace commentaire du post -->
-                    <div>
-                        <!-- Affichage des commentaires -->
-                        <div class="card bg-primary-light my-1">
-                            <div class="d-flex bg-primary-light">
-                                <h4 class="h5 card-title mx-2 pt-2 font-weight-bold w-100"><i class="fas fa-user-circle mr-2"></i>{{ nom }} {{ prenom }}</h4>
-                                <div class="btn-group dropleft">
-                                    <button type="button" class="btn btn-primary-light" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="fas fa-ellipsis-v bg-primary-light mr-2 mt-2"></i>
-                                    </button>
-                                    <div class="dropdown-menu bg-primary">
-                                        <button class="dropdown-item" type="button" disabled>Modifier</button>
-                                        <button class="dropdown-item" type="button" v-on:click="deleteCommentaire">Supprimer</button>
+                deleteCommentaire() {
+                    axios.delete('http://localhost:3000/api/commentaires/' + this.id, {
+                        headers: {
+                            'Authorization': localStorage.getItem('token')
+                        }
+                    })
+                        .then(response => {
+                            console.log(response);
+                            document.location.reload();
+                        })
+                        .catch(response => {
+                            console.log(response);
+                        })
+                },
+            },
+
+            template: `<!-- Espace commentaire du post -->
+                        <div>
+                            <!-- Affichage des commentaires -->
+                            <div class="card bg-primary-light my-1">
+                                <div class="d-flex bg-primary-light">
+                                    <h4 class="h5 card-title mx-2 pt-2 font-weight-bold w-100"><i class="fas fa-user-circle mr-2"></i>{{ nom }} {{ prenom }}</h4>
+                                    <div class="btn-group dropleft">
+                                        <button type="button" class="btn btn-primary-light" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v bg-primary-light mr-2 mt-2"></i>
+                                        </button>
+                                        <div class="dropdown-menu bg-primary">
+                                            <button class="dropdown-item" type="button" disabled>Modifier</button>
+                                            <button class="dropdown-item" type="button" v-on:click="deleteCommentaire">Supprimer</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="card-text mx-2 pb-1">{{ contenu }}</p>
+                                <div class="card-footer bg-primary-light d-flex">
+                                    <div class="mr-auto">
+                                        <button class="btn btn-outline-primary py-1 px-2" v-on:click="addLike"><p class="avis text-success mb-1"><i class="fas fa-thumbs-up mr-2"></i>{{ likes }}</p></button>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 small">Ajouté le: {{ formatedDate }}</p>
                                     </div>
                                 </div>
                             </div>
-                            <p class="card-text mx-2 pb-1">{{ contenu }}</p>
-                            <div class="card-footer bg-primary-light d-flex">
-                                <div class="mr-auto">
-                                    <button class="btn btn-outline-primary py-1 px-2" v-on:click="addLike"><p class="avis text-success mb-1"><i class="fas fa-thumbs-up mr-2"></i>{{ likes }}</p></button>
-                                </div>
-                                <div>
-                                    <p class="mb-0 small">Ajouté le: {{ formatedDate }}</p>
-                                </div>
-                            </div>
+                            <!-- Fin affichage des commentaires -->
                         </div>
-                        <!-- Fin affichage des commentaires -->
-                    </div>
-                    <!-- Fin espace commentaire du post -->`
-            })
+                        <!-- Fin espace commentaire du post -->`
+        })
     </script>
-
+    
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
         crossorigin="anonymous"></script>
@@ -317,6 +323,5 @@
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
         crossorigin="anonymous"></script>
     <script src="../script/bootstrap.js"></script>
-</body>
 
 </html>

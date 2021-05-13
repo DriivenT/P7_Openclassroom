@@ -13,8 +13,7 @@
 </head>
 
 <body class="bg-tertiary w-100">
-    <div id="app">
-
+    <div class="bg-tertiary w-100" id="app">
         <!-- Modal "Nouvelle email validée" -->
         <div class="modal fade" id="successUpdateModal" tabindex="-1" role="dialog" aria-labelledby="successUpdateModal"
             aria-hidden="true">
@@ -57,7 +56,7 @@
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+                <i class="fas fa-bars text-white nav-item"></i>
             </button>
     
             <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
@@ -71,14 +70,14 @@
                             Profil<span class="sr-only">(actuel)</span></a>
                     </li>
                     <li class="nav-item ml-sm-3">
-                        <a class="nav-link text-white" href="#"><i class="fas fa-power-off mr-sm-2"></i> Déconnexion</a>
+                        <a class="nav-link text-white" href="../index.html" v-on:click="logOut"><i class="fas fa-power-off mr-sm-2"></i> Déconnexion</a>
                     </li>
                 </ul>
             </div>
         </header>
     
         <h1 class="display-3 h1 mt-3 text-center text-primary-dark font-weight-bold"><u>Votre profil:</u></h1>
-        <div class="mx-5 d-flex mt-4" id="app">
+        <div class="mx-5 d-flex mt-4">
             <!-- Block Information (Gauche) -->
             <div class="mx-3 my-3 box-shadow w-100 d-flex flex-column">
                 <h2 class="h2 font-weight-bold mt-2 mb-4 text-primary-dark text-center"><u>Vos informations:</u></h2>
@@ -170,9 +169,8 @@
                         .catch(response => { console.log(response) })
                     })
                 },
-                
-                exitModal(){
-                    
+                logOut() {
+                    localStorage.clear();
                 }
             },
 
@@ -183,6 +181,7 @@
                     }
                 })
                 .then(response => {
+                    console.log(response);
                     this.nom = response.data.nom;
                     this.prenom = response.data.prenom;
                     this.email = response.data.email;
