@@ -23,7 +23,7 @@ Vue.js
 2. Lancer ```npm install```
 3. Configurer ```config/config.json```
 4. Lancer ```sequelize db:create && sequelize db:migrate```
-5. // Import sauvegarde.sql // ?
+5. Importer database_development.sql
 6. Créer un fichier ".env" pour l'utilisation de dotenv contenant:
     - HOST = localhost
     - PORT = 3307
