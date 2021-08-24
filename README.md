@@ -33,3 +33,10 @@ Vue.js
     - HEADERS = *
     - TOKEN_SECRET = 'clé_très_secrète_9838950°9837748_Personne_ne_la_connait'
 7. Enjoy
+
+### Compétences  
+  
+- Personnaliser le contenu envoyé à un client web  
+- Authentifier un utilisateur et maintenir sa session  
+- Gérer un stockage de données à l'aide de SQL  
+- Implémenter un stockage de données sécurisé en utilisant SQL
