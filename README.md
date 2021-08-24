@@ -17,14 +17,14 @@ MySQL
 Vue.js
 ```
 
-### Installing
+### Installation
 
 1. Cloner le repo
 2. Lancer ```npm install```
 3. Configurer ```config/config.json```
 4. Lancer ```sequelize db:create && sequelize db:migrate```
 5. Importer database_development.sql
-6. Créer un fichier ".env" pour l'utilisation de dotenv contenant:
+6. Créer un fichier ".env" à la racine pour l'utilisation de "dotenv" contenant ceci:
     - HOST = localhost
     - PORT = 3307
     - USER = admin
